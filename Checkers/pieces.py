@@ -40,5 +40,33 @@ class Pieces:
                     moves.append((row,col))
                     self.draw_possible_move(WINDOW,row,col)
         return moves
+    
+    def show_capture_moves(self,WINDOW,board):
+        capturing_moves = {}
+
+        #LEFT CAPTURE
+        middle_row = self.row + self.directions
+        middle_col = self.col - 1
+        landing_row = self.row + self.directions * 2
+        landing_col = self.col - 2
+        if 0 <= landing_row < ROWS and 0 <= landing_col < COLS:
+            middle_piece = board[middle_row][middle_col]
+            if middle_piece and middle_piece.color != self.color:
+                if board[landing_row][landing_col] is None:
+                    capturing_moves[(landing_row,landing_col)] = (middle_row,middle_col)
+                    self.draw_possible_move(WINDOW, landing_row, landing_col)
+
+        #RIGHT CAPTURE
+        middle_row = self.row + self.directions
+        middle_col = self.col + 1
+        landing_row = self.row + self.directions * 2
+        landing_col = self.col + 2
+        if 0 <= landing_row < ROWS and 0 <= landing_col < COLS:
+            middle_piece = board[middle_row][middle_col]
+            if middle_piece and middle_piece.color != self.color:
+                if board[landing_row][landing_col] is None:
+                    capturing_moves[(landing_row,landing_col)] = (middle_row,middle_col)
+                    self.draw_possible_move(WINDOW, landing_row, landing_col)
+        return capturing_moves
     def __repr__(self):
         return str(self.color)
