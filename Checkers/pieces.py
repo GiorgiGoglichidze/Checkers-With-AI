@@ -10,7 +10,7 @@ class Pieces:
         if self.king:
             self.directions = 0
         else:
-            self.directions = -1 if color == BLACK else 1
+            self.directions = 1 if color == BLACK else -1
             pass
     
     def draw(self,WINDOW):
@@ -27,16 +27,18 @@ class Pieces:
 
     def show_move(self,WINDOW,board):
         print(self.row,self.col,self.directions)
+        moves = []
         if 0 <= self.row + self.directions < ROWS:
             if self.col - 1 >= 0:
-                row,col = self.row - self.directions,self.col - 1
-                print(row,col)
+                row,col = self.row + self.directions,self.col - 1
                 if board[row][col] is None:
+                    moves.append((row,col))
                     self.draw_possible_move(WINDOW,row,col)
             if self.col + 1 < COLS:
-                row,col = self.row - self.directions,self.col + 1
+                row,col = self.row + self.directions,self.col + 1
                 if board[row][col] is None:
+                    moves.append((row,col))
                     self.draw_possible_move(WINDOW,row,col)
-
+        return moves
     def __repr__(self):
         return str(self.color)

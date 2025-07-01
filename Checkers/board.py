@@ -7,6 +7,8 @@ class Board:
         self.white_left = self.black_left = 12
         self.white_kings = self.black_kings = 0
 
+        self.create_board()
+
     def draw_squares(self,WINDOW):
         WINDOW.fill(BLACK)
         for i in range(ROWS):
@@ -39,11 +41,8 @@ class Board:
 
     def draw(self,WINDOW):
         self.draw_squares(WINDOW)
-        self.create_board()
         self.draw_pieces(WINDOW)
 
-    def show_moves(self,WINDOW,col,row):
-        if self.board[row][col] is not None:
-            self.board[row][col].show_move(WINDOW,self.board)                
+               
 
 
