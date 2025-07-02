@@ -15,6 +15,7 @@ class Game:
         self.turn = WHITE
         self.moves = {}
         self.selected_piece = None
+        self.locked_piece = None
 
         self.white_left = self.black_left = 12
         self.white_kings = self.black_kings = 0
