@@ -29,38 +29,52 @@ def main():
     piece = None
     capture_moves = None
     moves = None
-    #game.turn = WHITE
+
     while run:
         clock.tick(FPS)
 
 
 
         for event in pygame.event.get():
-            if capture_moves and event.type == pygame.MOUSEBUTTONDOWN:
-                game.capture_piece(capture_moves,piece)
-                game.update()
+            
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                square = get_row_col(pygame.mouse.get_pos())
+                while capture_moves and square in capture_moves:
+                    print('LEILA')
+                    game.capture_piece(capture_moves,piece)
+  
+                    game.update()
+                    capture_moves = piece.get_capture_moves(game.board.board)
+
+                    if not capture_moves:
+                        piece = None
+                        swap_turn(game)
+                    capture_moves = None
 
 
-                capture_moves = piece.show_capture_moves(WINDOW, game.board.board)
-
-                if not capture_moves:
+                if moves and square in moves and piece:
+                    print('SONIAAAAAA')
+                    game.make_move(moves,piece)
+                    game.update()
                     piece = None
-                    swap_turn(game)
+                    moves = None
 
+                else:                
+                    game.update()
+                    piece = game.get_selected_piece(square[0],square[1])                  
+                    if piece and piece.color == game.turn:
+                        print('ZAURAAAA')
+                        capturing_pieces = game.get_all_capturing_pieces()
+                        if capturing_pieces:
+                            print('MURTAZIIII')
+                            capture_moves = piece.get_capture_moves(game.board.board)
+                            if capture_moves:
+                                piece.show_capture_moves(game.window,capture_moves)
+                                moves = None
+                        else:
+                            
+                            moves = game.show_moves(piece)
 
-            elif moves and event.type == pygame.MOUSEBUTTONDOWN:
-                game.make_move(moves,piece)
-                game.update()
-                piece = None
-                moves = None
-
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                game.update()
-                row,col = get_row_col(pygame.mouse.get_pos())
-                piece = game.get_selected_piece(row,col)
-                if piece and piece.color == game.turn:
-                    moves = game.show_moves(piece)
-                    capture_moves = piece.show_capture_moves(WINDOW,game.board.board)
 
 
             if event.type == pygame.QUIT:

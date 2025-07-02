@@ -1,6 +1,6 @@
 import pygame
 from .board import Board
-from .constants import WHITE,BLACK,SQUARE_SIZE
+from .constants import WHITE,BLACK,SQUARE_SIZE,ROWS,COLS
 
 def get_row_col(pos):
     x,y = pos
@@ -34,6 +34,9 @@ class Game:
             return self.board.board[row][col]
 
         return None
+    
+
+
 
     def show_moves(self,piece):
         return piece.show_move(self.window,self.board.board)
@@ -67,3 +70,18 @@ class Game:
             self.board.board[piece.row][piece.col] = None
             self.board.board[row][col] = piece
             piece.row,piece.col = row,col
+            return True
+        else:
+            return False
+
+    def get_all_capturing_pieces(self):
+        pieces = []
+        for row in range(ROWS):
+            for col in range(COLS):
+                piece = self.board.board[row][col]
+                if piece and piece.color == self.turn:
+                    if piece.get_capture_moves(self.board.board):
+                        pieces.append(piece)
+        return pieces
+    
+    
