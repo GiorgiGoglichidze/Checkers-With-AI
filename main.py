@@ -16,11 +16,7 @@ def get_row_col(pos):
     x,y = pos
     return y//SQUARE_SIZE,x//SQUARE_SIZE
 
-def swap_turn(game):
-    if game.turn == WHITE:
-        game.turn = BLACK
-    else:
-        game.turn = WHITE
+
 
 def main():
     run = True
@@ -45,7 +41,7 @@ def main():
 
                 square = get_row_col(pygame.mouse.get_pos())
                 while capture_moves and piece and  square in capture_moves:
-                    print('LEILA')
+
                     game.capture_piece(capture_moves,piece)
   
                     game.update()
@@ -54,12 +50,12 @@ def main():
                     if not capture_moves:
                         piece.check_if_king(piece.row)
                         piece = None
-                        swap_turn(game)
+                        game.swap_turn()
                     capture_moves = None
 
 
                 if moves and square in moves and piece:
-                    print('SONIAAAAAA')
+
                     game.make_move(moves,piece)
                     game.update()
                     piece = None
@@ -69,10 +65,9 @@ def main():
                     game.update()
                     piece = game.select_turn_piece(square[0],square[1])                  
                     if piece and piece.color == game.turn:
-                        print('ZAURAAAA')
+
                         capturing_pieces = game.get_all_capturing_pieces()
                         if capturing_pieces:
-                            print('MURTAZIIII')
                             capture_moves = piece.get_capture_moves(game.board.board)
                             if capture_moves:
                                 piece.show_capture_moves(game.window,capture_moves)

@@ -43,7 +43,7 @@ class Pieces:
         return moves
 
     def show_move(self,WINDOW,moves):
-        print(self.row,self.col,self.directions)
+
         for row,col in moves:
             self.draw_possible_move(WINDOW,row,col)
             self.draw_possible_move(WINDOW,row,col)
