@@ -22,71 +22,27 @@ def main():
     run = True
     game = Game(WINDOW)
     game.update()
-    piece = None
-    capture_moves = None
-    moves = None
 
     while run:
         clock.tick(FPS)
 
-
-
         for event in pygame.event.get():
+            tie = game.check_tie()
+            if tie:
+                run = False
+                break
+
             if game.check_no_legal_moves():
                     run = False
                     break
             if event.type == pygame.MOUSEBUTTONDOWN:
-
                 square = get_row_col(pygame.mouse.get_pos())
-                while capture_moves and piece and  square in capture_moves:
+                game.handle_click(square)
 
-                    game.capture_piece(capture_moves,piece)
-  
-                    game.update()
-                    capture_moves = piece.get_capture_moves(game.board.board)
-
-                    game.locked_piece = piece
-                    if not capture_moves:
-                        piece.check_if_king(piece.row)
-                        piece = None
-                        game.locked_piece = None
-                        game.swap_turn()
-                    capture_moves = None
-                    
-
-
-                if moves and square in moves and piece:
-
-                    game.make_move(moves,piece)
-                    game.update()
-                    piece = None
-                    moves = None
-
-                else:                
-                    game.update()
-                    piece = game.select_turn_piece(square[0],square[1])
-                    if game.locked_piece and piece != game.locked_piece:
-                        piece = None
-                        continue                  
-                    if piece and piece.color == game.turn:
-
-                        capturing_pieces = game.get_all_capturing_pieces()
-                        if capturing_pieces:
-
-                            capture_moves = piece.get_capture_moves(game.board.board)
-                            if capture_moves:
-
-                                piece.show_capture_moves(game.window,capture_moves)
-                                moves = None
-                        else:
-                            
-                            moves = game.show_moves(piece)
-
-                    winner = game.check_win()
-                    tie = game.check_tie()
-                    if winner or tie:
-                        run = False
-                        break
+            winner = game.check_win()
+            if winner:
+                run = False
+                break
 
             if event.type == pygame.QUIT:
                 run = False

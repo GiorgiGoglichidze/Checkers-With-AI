@@ -1,7 +1,7 @@
 import pygame
 from .board import Board
 from .constants import WHITE,BLACK,SQUARE_SIZE,ROWS,COLS,WIDTH,HEIGHT
-
+from .pieces import Pieces
 def get_row_col(pos):
     x,y = pos
     return y//SQUARE_SIZE,x//SQUARE_SIZE
@@ -23,6 +23,52 @@ class Game:
 
         self.board = Board()
 
+        self.capture_moves = None
+        self.piece = None
+        self.moves = None
+
+    def handle_click(self,square):
+        while self.capture_moves and self.piece and  square in self.capture_moves:
+
+                    self.capture_piece(self.capture_moves,self.piece)
+  
+                    self.update()
+                    self.capture_moves = self.piece.get_capture_moves(self.board.board)
+
+                    self.locked_piece = self.piece
+                    if not self.capture_moves:
+                        self.piece.check_if_king(self.piece.row)
+                        self.piece = None
+                        self.locked_piece = None
+                        self.swap_turn()
+                    self.capture_moves = None
+        if self.moves and square in self.moves and self.piece:
+
+            self.make_move(self.moves,self.piece)
+            self.update()
+            self.piece = None
+            self.moves = None
+
+        else:                
+            self.update()
+            self.piece = self.select_turn_piece(square[0],square[1])
+            if self.locked_piece and self.piece != self.locked_piece:
+                self.piece = None
+                return                  
+            if self.piece and self.piece.color == self.turn:
+
+                capturing_pieces = self.get_all_capturing_pieces()
+                if capturing_pieces:
+
+                    self.capture_moves = self.piece.get_capture_moves(self.board.board)
+                    if self.capture_moves:
+
+                        self.piece.show_capture_moves(self.window,self.capture_moves)
+                        self.moves = None
+                else:
+                    
+                    self.moves = self.show_moves(self.piece)
+    
 
     def update(self):
         self.board.draw(self.window)
