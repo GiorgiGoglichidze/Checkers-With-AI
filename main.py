@@ -36,10 +36,15 @@ def main():
 
 
         for event in pygame.event.get():
-            
+            if game.check_no_legal_moves():
+                    run = False
+                    break
             if event.type == pygame.MOUSEBUTTONDOWN:
+                
+
+
                 square = get_row_col(pygame.mouse.get_pos())
-                while capture_moves and square in capture_moves:
+                while capture_moves and piece and  square in capture_moves:
                     print('LEILA')
                     game.capture_piece(capture_moves,piece)
   
@@ -47,6 +52,7 @@ def main():
                     capture_moves = piece.get_capture_moves(game.board.board)
 
                     if not capture_moves:
+                        piece.check_if_king(piece.row)
                         piece = None
                         swap_turn(game)
                     capture_moves = None
@@ -61,7 +67,7 @@ def main():
 
                 else:                
                     game.update()
-                    piece = game.get_selected_piece(square[0],square[1])                  
+                    piece = game.select_turn_piece(square[0],square[1])                  
                     if piece and piece.color == game.turn:
                         print('ZAURAAAA')
                         capturing_pieces = game.get_all_capturing_pieces()
@@ -75,7 +81,11 @@ def main():
                             
                             moves = game.show_moves(piece)
 
-
+                    winner = game.check_win()
+                    tie = game.check_tie()
+                    if winner or tie:
+                        run = False
+                        break
 
             if event.type == pygame.QUIT:
                 run = False
