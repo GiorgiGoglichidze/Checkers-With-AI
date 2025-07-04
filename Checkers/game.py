@@ -26,8 +26,9 @@ class Game:
         self.capture_moves = None
         self.piece = None
         self.moves = None
-
+    #HANDLES USER CLICKS
     def handle_click(self,square):
+        #Executes capturing a piece
         while self.capture_moves and self.piece and  square in self.capture_moves:
 
                     self.capture_piece(self.capture_moves,self.piece)
@@ -37,11 +38,12 @@ class Game:
 
                     self.locked_piece = self.piece
                     if not self.capture_moves:
-                        self.piece.check_if_king(self.piece.row)
+                        self.piece.check_if_king(self.piece.row,self.board)
                         self.piece = None
                         self.locked_piece = None
                         self.swap_turn()
                     self.capture_moves = None
+        #Executes moving a piece
         if self.moves and square in self.moves and self.piece:
 
             self.make_move(self.moves,self.piece)
@@ -52,11 +54,12 @@ class Game:
         else:                
             self.update()
             self.piece = self.select_turn_piece(square[0],square[1])
+            #Assures that during chain capturing other piece isn't chosen
             if self.locked_piece and self.piece != self.locked_piece:
                 self.piece = None
                 return                  
             if self.piece and self.piece.color == self.turn:
-
+                
                 capturing_pieces = self.get_all_capturing_pieces()
                 if capturing_pieces:
 
@@ -88,49 +91,39 @@ class Game:
         else:
             self.turn = WHITE
 
+        self.board.set_turn(self.turn)
+
 
 
     def show_moves(self,piece):
-        moves = piece.get_move(self.board.board)
+        moves = piece.get_moves(self.board.board)
         piece.show_move(self.window,moves)
         return moves
 
     def show_capturing_moves(self,piece):
           return piece.show_capturing_moves(self.window,self.board.board)
+    
 
     def make_move(self,moves,piece):
-        row,col = get_row_col(pygame.mouse.get_pos())
-
-        if (row,col) in moves:
-            self.board.board[row][col] = piece
-            self.board.board[piece.row][piece.col] = None
-            self.progression += 1
-            piece.row,piece.col = row,col
-
-            piece.check_if_king(piece.row)
+        new_board = piece.make_move(moves,self.board)
+        if new_board:
+            self.progression+=1
+            self.board.set_progression(self.progression)
             self.swap_turn()
-        return
-    
-    def capture_piece(self,capture_moves,piece):
-        row,col = get_row_col(pygame.mouse.get_pos())
 
-        if (row,col) in capture_moves.keys():
-            captured_piece_row,captured_piece_col = capture_moves[(row,col)]
-            captured_piece = self.get_selected_piece(captured_piece_row,captured_piece_col)
-            if captured_piece.color == WHITE:
+    def capture_piece(self,capture_moves,piece):
+        new_board,color = piece.capture_piece(capture_moves,self.board)
+
+        if new_board:
+            if color == WHITE:
                 self.white_left-=1
+                self.board.set_white_left(self.white_left)
             else:
                 self.black_left-=1
-
-            self.board.board[captured_piece.row][captured_piece.col] = None
-            self.board.board[piece.row][piece.col] = None
-            self.board.board[row][col] = piece
+                self.board.set_black_left(self.black_left)
             self.progression = 0
-            piece.row,piece.col = row,col
+            self.board.set_progression(self.progression)
 
-            return True
-        else:
-            return False
 
     def get_all_capturing_pieces(self):
         pieces = []
@@ -142,44 +135,26 @@ class Game:
                         pieces.append(piece)
         return pieces
     
-    def check_win(self):
-        if self.black_left <= 0:
+    def display_win(self):
+        win = self.board.check_win()
+        if win == 1:
             self.display_TEXT("WHITE is Winner !!!")
             return True
-        elif self.white_left <= 0:
+        elif win == 2:
             self.display_TEXT("BLACK is Winner !!!")
             return True
-        else:
-            return False
         
 
-    def check_no_legal_moves(self):
-        legal_moves = []
-        for row in range(ROWS):
-            for col in range(COLS):
-                if self.board.board[row][col] != None:
-                    piece = self.board.board[row][col]
-                    if piece.color == self.turn:
-                        move = piece.get_move(self.board.board)
-                        if move:
-                            legal_moves.append(move)
-                        
-                        captures = piece.get_capture_moves(self.board.board)
-                        if captures:
-                            legal_moves.append(captures)
-
-
-        if legal_moves:return False      
-        else:
+    def display_no_legal_moves(self):
+        if self.board.check_no_legal_moves():
             color = "WHITE" if WHITE != self.turn else "BLACK"
             self.display_TEXT(color + " is Winner") 
             return True
 
-    def check_tie(self):
-        if self.progression >= 50:
+    def display_tie(self):
+        if self.board.check_tie():
             self.display_TEXT("It's a Tie")
             return True
-        return False
 
     def display_TEXT(self,winner_text):
         font = pygame.font.SysFont("comicsans", 60)
@@ -187,5 +162,9 @@ class Game:
         self.window.blit(text, (WIDTH // 2 - text.get_width() // 2, HEIGHT // 2 - text.get_height() // 2))
         pygame.display.update()
         pygame.time.delay(3000)
-        
+
+
+    def ai_move(self, board):
+        self.board = board
+        self.swap_turn()   
     

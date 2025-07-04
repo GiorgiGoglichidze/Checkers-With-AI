@@ -1,5 +1,10 @@
 from .constants import RADIUS_PIECE,RADIUS_MOVE,BLACK,WHITE,BLUE,SQUARE_SIZE,COLS,ROWS,CROWN
 import pygame
+def get_row_col(pos):
+    x,y = pos
+    return y//SQUARE_SIZE,x//SQUARE_SIZE
+
+
 class Pieces:
     def __init__(self,row,col,color):
         self.king = False
@@ -28,7 +33,7 @@ class Pieces:
 
         pygame.draw.circle(WINDOW,BLUE,[x,y],RADIUS_MOVE,0)
 
-    def get_move(self,board):
+    def get_moves(self,board):
         moves = []
         for direction in self.directions:
             if 0 <= self.row + direction < ROWS:
@@ -41,6 +46,19 @@ class Pieces:
                     if board[row][col] is None:
                         moves.append((row,col))
         return moves
+    
+    def make_move(self,moves,board,row = None,col = None):
+        if row == None and col == None:
+            row,col = get_row_col(pygame.mouse.get_pos())
+
+        if (row,col) in moves:
+            board.board[row][col] = self
+            board.board[self.row][self.col] = None
+
+            self.row,self.col = row,col
+
+            self.check_if_king(self.row,board)
+            return board
 
     def show_move(self,WINDOW,moves):
 
@@ -79,20 +97,43 @@ class Pieces:
         
         return capturing_moves
     
+
+    def capture_piece(self,capture_moves,board,row = None,col = None):
+        if row == None and col == None:
+            row,col = get_row_col(pygame.mouse.get_pos())
+
+        if (row,col) in capture_moves.keys():
+            captured_piece_row,captured_piece_col = capture_moves[(row,col)]
+
+            if board.board[captured_piece_row][captured_piece_col]:
+                captured_piece = board.board[captured_piece_row][captured_piece_col]
+
+
+            board.board[captured_piece.row][captured_piece.col] = None
+            board.board[self.row][self.col] = None
+            board.board[row][col] = self
+            self.row,self.col = row,col
+            self.check_if_king(self.row,board)
+            return board,captured_piece.color
+
+    
     def show_capture_moves(self,WINDOW,capture_moves):
         for key in capture_moves.keys():
             self.draw_possible_move(WINDOW, key[0], key[1])
 
 
 
-    def check_if_king(self,row):
+    def check_if_king(self,row,board):
         if self.color == BLACK and row == 7:
             self.directions = [-1,1]
             self.king = True
+            board.king_count(BLACK)
 
         if self.color == WHITE and row == 0:
             self.directions = [-1,1]
             self.king = True
+            board.king_count(WHITE)
+
     
     def crown_a_king(self,WINDOW):
         center_x,center_y = self.col * SQUARE_SIZE + SQUARE_SIZE//2 , self.row * SQUARE_SIZE + SQUARE_SIZE//2
