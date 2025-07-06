@@ -12,7 +12,6 @@ class Game:
     def __init__(self,WINDOW):
         
         self.window = WINDOW
-        self.turn = WHITE
         self.moves = {}
         self.selected_piece = None
         self.locked_piece = None
@@ -34,6 +33,8 @@ class Game:
                     self.capture_piece(self.capture_moves,self.piece)
   
                     self.update()
+                    if not self.piece:
+                        return
                     self.capture_moves = self.piece.get_capture_moves(self.board.board)
 
                     self.locked_piece = self.piece
@@ -41,7 +42,7 @@ class Game:
                         self.piece.check_if_king(self.piece.row,self.board)
                         self.piece = None
                         self.locked_piece = None
-                        self.swap_turn()
+                        self.board.swap_turn()
                     self.capture_moves = None
         #Executes moving a piece
         if self.moves and square in self.moves and self.piece:
@@ -58,7 +59,7 @@ class Game:
             if self.locked_piece and self.piece != self.locked_piece:
                 self.piece = None
                 return                  
-            if self.piece and self.piece.color == self.turn:
+            if self.piece and self.piece.color == self.board.turn:
                 
                 capturing_pieces = self.get_all_capturing_pieces()
                 if capturing_pieces:
@@ -81,17 +82,11 @@ class Game:
             return self.board.board[row][col]
         
     def select_turn_piece(self,row,col):
-        if self.board.board[row][col] and self.board.board[row][col].color == self.turn:
+        if self.board.board[row][col] and self.board.board[row][col].color == self.board.turn:
             return self.board.board[row][col]
 
 
-    def swap_turn(self):
-        if self.turn == WHITE:
-            self.turn = BLACK
-        else:
-            self.turn = WHITE
 
-        self.board.set_turn(self.turn)
 
 
 
@@ -109,10 +104,10 @@ class Game:
         if new_board:
             self.progression+=1
             self.board.set_progression(self.progression)
-            self.swap_turn()
+            self.board.swap_turn()
 
     def capture_piece(self,capture_moves,piece):
-        new_board,color = piece.capture_piece(capture_moves,self.board)
+        new_board,color,became_king = piece.capture_piece(capture_moves,self.board)
 
         if new_board:
             if color == WHITE:
@@ -123,14 +118,19 @@ class Game:
                 self.board.set_black_left(self.black_left)
             self.progression = 0
             self.board.set_progression(self.progression)
-
+            if became_king:
+                self.piece = None
+                self.locked_piece = None
+                self.board.swap_turn()
+                self.capture_moves = None
+                return
 
     def get_all_capturing_pieces(self):
         pieces = []
         for row in range(ROWS):
             for col in range(COLS):
                 piece = self.board.board[row][col]
-                if piece and piece.color == self.turn:
+                if piece and piece.color == self.board.turn:
                     if piece.get_capture_moves(self.board.board):
                         pieces.append(piece)
         return pieces
@@ -147,7 +147,7 @@ class Game:
 
     def display_no_legal_moves(self):
         if self.board.check_no_legal_moves():
-            color = "WHITE" if WHITE != self.turn else "BLACK"
+            color = "WHITE" if WHITE != self.board.turn else "BLACK"
             self.display_TEXT(color + " is Winner") 
             return True
 
@@ -166,5 +166,5 @@ class Game:
 
     def ai_move(self, board):
         self.board = board
-        self.swap_turn()   
+        board.swap_turn()   
     

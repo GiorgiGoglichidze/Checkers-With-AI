@@ -113,8 +113,10 @@ class Pieces:
             board.board[self.row][self.col] = None
             board.board[row][col] = self
             self.row,self.col = row,col
+            was_king = self.king
             self.check_if_king(self.row,board)
-            return board,captured_piece.color
+            became_king = (not was_king and self.king)
+            return board,captured_piece.color,became_king
 
     
     def show_capture_moves(self,WINDOW,capture_moves):

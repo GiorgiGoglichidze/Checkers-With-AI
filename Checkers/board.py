@@ -29,6 +29,13 @@ class Board:
     def set_turn(self,turn):
         self.turn = turn
 
+    def swap_turn(self):
+        if self.turn == WHITE:
+            self.turn = BLACK
+        else:
+            self.turn = WHITE
+
+
     def draw_squares(self,WINDOW):
         WINDOW.fill(BLACK)
         for i in range(ROWS):

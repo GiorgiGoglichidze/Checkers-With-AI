@@ -12,8 +12,11 @@ def simulate_move(board,piece,move):
         for landing_row,landing_col in move.keys():
             board_copy = deepcopy(new_board)
             piece_copy = board_copy.board[new_piece.row][new_piece.col]
-            board_copy, _ = piece_copy.capture_piece(move, board_copy, landing_row, landing_col)
+            board_copy, _,became_king = piece_copy.capture_piece(move, board_copy, landing_row, landing_col)
             
+            if became_king:
+                list_new_boards.append(board_copy)
+                continue
             # Chain capture logic
             next_captures = piece_copy.get_capture_moves(board_copy.board)
             if next_captures:
@@ -27,7 +30,7 @@ def simulate_move(board,piece,move):
             list_new_boards.append(tmp)
     return list_new_boards
 
-#Decide if you want board or board.board 
+
 def get_all_possible_moves(board,color):
         capture_moves = []
         moves = []

@@ -29,7 +29,7 @@ def main():
     while run:
         clock.tick(FPS)
 
-        if game.turn == BLACK:
+        if game.board.turn == BLACK:
             min_val,new_board = minimax(game.board,4,False)
             game.ai_move(new_board)
             game.update()
