@@ -30,7 +30,7 @@ def main():
         clock.tick(FPS)
 
         if game.board.turn == BLACK:
-            min_val,new_board = minimax(game.board,4,False)
+            min_val,new_board = minimax(game.board,5,False)
             game.ai_move(new_board)
             game.update()
             pygame.time.delay(500)

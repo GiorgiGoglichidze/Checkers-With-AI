@@ -56,7 +56,7 @@ def get_all_possible_moves(board,color):
                 possible_boards += simulate_move(board,piece,move)
         return possible_boards
 
-def minimax(board,depth,maximizing_player):
+def minimax(board,depth,maximizing_player,alpha = float("-inf"),beta = float("inf")):
     if depth == 0 or board.game_over():
         return board.evaluate_board(),board
 
@@ -65,10 +65,15 @@ def minimax(board,depth,maximizing_player):
         all_pos = get_all_possible_moves(board,WHITE)
         correct_move = None
         for board in all_pos:
-            val = minimax(board,depth-1,not maximizing_player)[0]
+            val = minimax(board,depth-1,not maximizing_player,alpha,beta)[0]
             max_eval = max(max_eval,val)
+            alpha = max(alpha,val)
+            
             if val == max_eval:
                 correct_move = board
+            
+            if beta <= alpha:
+                break
 
         return max_eval,correct_move
     else:
@@ -76,8 +81,12 @@ def minimax(board,depth,maximizing_player):
         all_pos = get_all_possible_moves(board,BLACK)
         correct_move = None
         for board in all_pos:
-            val = minimax(board,depth-1,not maximizing_player)[0]
+            val = minimax(board,depth-1,not maximizing_player,alpha,beta)[0]
             min_eval = min(min_eval,val)
+            beta = min(beta,val)
             if val == min_eval:
                 correct_move = board
+
+            if beta <= alpha:
+                break
         return min_eval,correct_move
